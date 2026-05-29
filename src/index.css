@@ -1,0 +1,413 @@
+@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Cinzel+Decorative:wght@400;700;900&family=Philosopher:ital,wght@0,400;0,700;1,400;1,700&family=JetBrains+Mono:wght@400;600;700&family=MedievalSharp&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 15 12% 5%;
+    --foreground: 40 20% 88%;
+
+    --card: 15 14% 9%;
+    --card-foreground: 40 20% 88%;
+
+    --popover: 15 14% 9%;
+    --popover-foreground: 40 20% 88%;
+
+    --primary: 43 80% 50%;
+    --primary-foreground: 15 12% 5%;
+
+    --secondary: 15 12% 14%;
+    --secondary-foreground: 40 15% 80%;
+
+    --muted: 15 10% 14%;
+    --muted-foreground: 35 10% 50%;
+
+    --accent: 0 70% 45%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 30 20% 16%;
+    --input: 30 20% 16%;
+    --ring: 43 80% 50%;
+
+    --radius: 0.375rem;
+
+    --success: 145 70% 45%;
+    --warning: 38 92% 50%;
+    --gold: 43 80% 50%;
+    --bronze: 30 60% 40%;
+    --crimson: 0 70% 45%;
+
+    --sidebar-background: 15 14% 7%;
+    --sidebar-foreground: 40 15% 80%;
+    --sidebar-primary: 43 80% 50%;
+    --sidebar-primary-foreground: 15 12% 5%;
+    --sidebar-accent: 15 10% 14%;
+    --sidebar-accent-foreground: 40 15% 80%;
+    --sidebar-border: 30 20% 16%;
+    --sidebar-ring: 43 80% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: "Philosopher", serif;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: "Cinzel", serif;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: hsl(15 12% 5%);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(43 80% 50% / 0.3);
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(43 80% 50% / 0.5);
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: "Cinzel Decorative", serif;
+  }
+
+  .font-heading {
+    font-family: "Cinzel", serif;
+  }
+
+  .font-medieval {
+    font-family: "MedievalSharp", cursive;
+  }
+
+  .font-mono-game {
+    font-family: "JetBrains Mono", monospace;
+  }
+
+  .glass {
+    @apply bg-card/60 backdrop-blur-xl border border-border/50;
+  }
+
+  .glass-strong {
+    @apply bg-card/85 backdrop-blur-2xl border border-border/60;
+  }
+
+  /* Ancient scroll panel */
+  .scroll-panel {
+    background: linear-gradient(
+      135deg,
+      hsl(30 30% 12%) 0%,
+      hsl(15 14% 9%) 50%,
+      hsl(20 20% 8%) 100%
+    );
+    border: 1px solid hsl(43 80% 50% / 0.25);
+    box-shadow:
+      inset 0 1px 0 hsl(43 80% 50% / 0.1),
+      inset 0 -1px 0 hsl(0 0% 0% / 0.3),
+      0 4px 20px hsl(0 0% 0% / 0.5);
+  }
+
+  /* Metallic gold border */
+  .gold-border {
+    border: 1px solid hsl(43 80% 50% / 0.4);
+    box-shadow:
+      0 0 8px hsl(43 80% 50% / 0.15),
+      inset 0 0 8px hsl(43 80% 50% / 0.05);
+  }
+
+  /* Fire glow effect */
+  .fire-glow {
+    box-shadow:
+      0 0 30px hsl(20 90% 50% / 0.3),
+      0 0 60px hsl(0 70% 45% / 0.15),
+      0 0 100px hsl(43 80% 50% / 0.1);
+  }
+
+  .glow-gold {
+    box-shadow:
+      0 0 20px hsl(43 80% 50% / 0.3),
+      0 0 60px hsl(43 80% 50% / 0.1);
+  }
+
+  .glow-red {
+    box-shadow:
+      0 0 20px hsl(0 70% 45% / 0.3),
+      0 0 60px hsl(0 70% 45% / 0.1);
+  }
+
+  .text-glow-gold {
+    text-shadow:
+      0 0 10px hsl(43 80% 50% / 0.5),
+      0 0 30px hsl(43 80% 50% / 0.2);
+  }
+
+  .text-glow-red {
+    text-shadow:
+      0 0 10px hsl(0 70% 45% / 0.5),
+      0 0 30px hsl(0 70% 45% / 0.2);
+  }
+
+  .text-glow-fire {
+    text-shadow:
+      0 0 10px hsl(20 90% 50% / 0.6),
+      0 0 30px hsl(43 80% 50% / 0.3),
+      0 0 60px hsl(0 70% 45% / 0.15);
+  }
+
+  .greek-border {
+    border-image: linear-gradient(
+        90deg,
+        transparent 0%,
+        hsl(43 80% 50% / 0.4) 20%,
+        hsl(43 80% 50% / 0.6) 50%,
+        hsl(43 80% 50% / 0.4) 80%,
+        transparent 100%
+      )
+      1;
+  }
+
+  .ornate-border {
+    position: relative;
+  }
+
+  .ornate-border::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border: 1px solid hsl(43 80% 50% / 0.2);
+    pointer-events: none;
+  }
+
+  .ornate-border::after {
+    content: "";
+    position: absolute;
+    top: -1px;
+    left: 15%;
+    right: 15%;
+    height: 2px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      hsl(43 80% 50% / 0.7),
+      transparent
+    );
+    pointer-events: none;
+  }
+
+  /* Corner ornaments */
+  .ornate-corners {
+    position: relative;
+  }
+  .ornate-corners::before,
+  .ornate-corners::after {
+    content: "⚜";
+    position: absolute;
+    color: hsl(43 80% 50% / 0.4);
+    font-size: 14px;
+    pointer-events: none;
+  }
+  .ornate-corners::before {
+    top: -2px;
+    left: 4px;
+  }
+  .ornate-corners::after {
+    top: -2px;
+    right: 4px;
+  }
+
+  .scanline {
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 3px,
+      hsl(43 80% 50% / 0.02) 3px,
+      hsl(43 80% 50% / 0.02) 6px
+    );
+  }
+
+  /* Dropdown menu styling */
+  .dropdown-menu {
+    background: linear-gradient(
+      180deg,
+      hsl(15 14% 12%) 0%,
+      hsl(15 14% 8%) 100%
+    );
+    border: 1px solid hsl(43 80% 50% / 0.3);
+    box-shadow:
+      0 8px 32px hsl(0 0% 0% / 0.6),
+      0 0 12px hsl(43 80% 50% / 0.1);
+  }
+
+  /* Nav banner bar */
+  .nav-banner {
+    background: linear-gradient(
+      180deg,
+      hsl(20 25% 14%) 0%,
+      hsl(15 20% 10%) 40%,
+      hsl(10 15% 8%) 100%
+    );
+    border-bottom: 2px solid hsl(43 80% 50% / 0.4);
+    box-shadow:
+      0 2px 20px hsl(0 0% 0% / 0.5),
+      inset 0 1px 0 hsl(43 80% 50% / 0.15);
+  }
+
+  /* Banner image overlay */
+  .banner-overlay {
+    background:
+      radial-gradient(
+        ellipse at 30% 50%,
+        hsl(0 70% 30% / 0.15) 0%,
+        transparent 70%
+      ),
+      radial-gradient(
+        ellipse at 70% 50%,
+        hsl(43 80% 50% / 0.1) 0%,
+        transparent 70%
+      ),
+      linear-gradient(
+        180deg,
+        hsl(15 12% 5% / 0.3) 0%,
+        transparent 30%,
+        transparent 70%,
+        hsl(15 12% 5%) 100%
+      );
+  }
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes ember-float {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translateY(-20px) scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-40px) scale(0.8);
+    opacity: 0;
+  }
+}
+
+@keyframes shimmer-gold {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes flame-flicker {
+  0%,
+  100% {
+    opacity: 0.8;
+    filter: brightness(1);
+  }
+  25% {
+    opacity: 1;
+    filter: brightness(1.1);
+  }
+  50% {
+    opacity: 0.9;
+    filter: brightness(0.95);
+  }
+  75% {
+    opacity: 1;
+    filter: brightness(1.05);
+  }
+}
+
+@keyframes float-gentle {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+/* Background smoke effects and animations */
+.smoke-puff {
+  @apply absolute rounded-full pointer-events-none opacity-40;
+  width: 800px;
+  height: 800px;
+  background: radial-gradient(circle, rgba(60, 60, 60, 0.3) 0%, rgba(0, 0, 0, 0) 70%);
+  filter: blur(60px);
+  z-index: -1;
+}
+
+.puff-1 {
+  top: -100px;
+  left: -100px;
+  animation: float-smoke 20s infinite alternate ease-in-out;
+}
+
+.puff-2 {
+  bottom: -200px;
+  right: -100px;
+  animation: float-smoke 25s infinite alternate-reverse ease-in-out;
+}
+
+.puff-3 {
+  top: 40%;
+  left: 30%;
+  opacity: 0.1;
+  animation: float-smoke 30s infinite alternate ease-in-out;
+}
+
+@keyframes float-smoke {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  100% {
+    transform: translate(100px, 50px) scale(1.2);
+  }
+}
+
+/* God Rays Effect */
+.god-rays {
+  background: linear-gradient(
+    105deg,
+    transparent 20%,
+    rgba(255, 165, 0, 0.05) 40%,
+    rgba(255, 165, 0, 0.08) 50%,
+    rgba(255, 165, 0, 0.05) 60%,
+    transparent 80%
+  );
+  background-size: 200% 100%;
+  animation: shimmer-gold 8s infinite linear;
+}
