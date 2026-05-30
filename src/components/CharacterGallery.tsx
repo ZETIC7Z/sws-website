@@ -27,6 +27,21 @@ const activities = [
     desc: "Brothers of the Social Welfare Skeptrons sharing moments of fellowship and camaraderie — a testament to the lasting bonds forged within Alpha Kappa Rho.",
     image: "/sws-activity-5.jpg",
   },
+  {
+    name: "SWS Brothers at Work",
+    desc: "AKRho SWS brothers showing the Skeptron sign — brotherhood is not only shown in events but in everyday life, wherever we are, we represent.",
+    image: "/sws-activity-6.jpg",
+  },
+  {
+    name: "Brotherhood on the Waters",
+    desc: "SWS Skeptrons brothers enjoying a boat trip together — bonding beyond boundaries, strengthening the brotherhood through shared adventures.",
+    image: "/sws-activity-7.jpg",
+  },
+  {
+    name: "SWS Chapter Assembly",
+    desc: "The full SWS Skeptrons chapter assembled — united in purpose, bound by brotherhood, and committed to the values of Alpha Kappa Rho.",
+    image: "/sws-activity-8.jpg",
+  },
 ];
 
 const ActivitiesGallery = () => {
