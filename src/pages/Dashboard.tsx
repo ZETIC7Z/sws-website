@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import { User, Shield, QrCode, BarChart3, Camera, LogOut, Copy, Check, Download } from "lucide-react";
+import { getApiUrl } from "@/lib/utils";
 import QRCodeComponent from "react-qr-code";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -20,7 +21,7 @@ const Dashboard = () => {
   useEffect(() => {
     const token = localStorage.getItem("sws_token");
     if (!token) { navigate("/login"); return; }
-    fetch("/api/auth/me", { headers: { Authorization: `Bearer ${token}` } })
+    fetch(getApiUrl("/api/auth/me"), { headers: { Authorization: `Bearer ${token}` } })
       .then(r => r.json()).then(data => { if (data.user) setUser(data.user); else navigate("/login"); })
       .catch(() => navigate("/login"))
       .finally(() => setLoading(false));
@@ -48,7 +49,7 @@ const Dashboard = () => {
     const fd = new FormData(); fd.append("avatar", file);
     const token = localStorage.getItem("sws_token");
     try {
-      const res = await fetch("/api/auth/upload-avatar", { method: "POST", headers: { Authorization: `Bearer ${token}` }, body: fd });
+      const res = await fetch(getApiUrl("/api/auth/upload-avatar"), { method: "POST", headers: { Authorization: `Bearer ${token}` }, body: fd });
       const data = await res.json();
       if (data.profileImage) setUser((u: any) => ({ ...u, profileImage: data.profileImage }));
     } catch { } finally { setUploadingAvatar(false); }
