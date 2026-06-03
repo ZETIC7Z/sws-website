@@ -42,7 +42,7 @@ async function run() {
 
     const password = "42564126";
     const hashed = await bcrypt.hash(password, 12);
-    const accountId = "SWS-2026-ADMIN";
+    const accountId = "2026000001";
     const qrCode = await QRCode.toDataURL(accountId, { errorCorrectionLevel: "H", width: 200 });
 
     const admin = new User({
