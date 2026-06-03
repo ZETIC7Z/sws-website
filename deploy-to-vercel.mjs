@@ -87,6 +87,15 @@ async function run() {
     }
   }
 
+  // Update project settings to disable Vite build on Vercel side (since we deploy prebuilt dist)
+  console.log("⚙️  Configuring project settings for prebuilt deployment...");
+  await api("PATCH", `/v9/projects/${projectId}`, {
+    framework: null,
+    buildCommand: null,
+    installCommand: null,
+    outputDirectory: null,
+  });
+
   // Step 2: Upload dist files for deployment
   console.log("\n📤 Uploading dist files...");
   const distDir = join(process.cwd(), "dist");
