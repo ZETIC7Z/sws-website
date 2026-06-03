@@ -10,6 +10,7 @@ import CharacterGallery from "@/components/CharacterGallery";
 import TopPlayersSlider from "@/components/TopPlayersSlider";
 import BackgroundFX from "@/components/BackgroundFX";
 import MemberVerifierModal from "@/components/MemberVerifierModal";
+import SWSMusicPlayer from "@/components/SWSMusicPlayer";
 import heroBg from "@/assets/hero-bg.jpg";
 
 const Index = () => {
@@ -54,6 +55,35 @@ const Index = () => {
     window.addEventListener("storage", checkAuth);
     const interval = setInterval(checkAuth, 2000);
     return () => { window.removeEventListener("storage", checkAuth); clearInterval(interval); };
+  }, []);
+
+  // Poll for real-time user updates (e.g. position changes by admin)
+  useEffect(() => {
+    let isMounted = true;
+    const fetchProfile = async () => {
+      const token = localStorage.getItem("sws_token");
+      if (!token) return;
+      try {
+        const res = await fetch(getApiUrl("/api/auth/me"), {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data && data.user && isMounted) {
+          setLoggedInUser(data.user);
+          localStorage.setItem("sws_user", JSON.stringify(data.user));
+        }
+      } catch (err) {
+        console.error("Error fetching user profile in Home:", err);
+      }
+    };
+
+    fetchProfile();
+    const interval = setInterval(fetchProfile, 4000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
   }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -184,13 +214,13 @@ const Index = () => {
           {/* ─── CENTER (shows first on mobile) ─── */}
           <div className="lg:col-span-6 space-y-4 order-1 lg:order-2">
 
-            {/* Group Photo */}
-            <motion.div className="scroll-panel rounded-lg overflow-hidden ornate-border"
-              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-              <div className="relative w-full overflow-hidden" style={{ height: "260px" }}>
-                <img src="/sws-group-photo.jpg" alt="SWS Skeptrons Brotherhood"
-                  className="w-full h-full object-cover object-center" />
-              </div>
+            {/* SWS Music Player */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <SWSMusicPlayer />
             </motion.div>
 
             {/* Countdown */}
@@ -246,7 +276,7 @@ const Index = () => {
               <motion.div className="scroll-panel rounded-lg p-4 ornate-border"
                 initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}>
                 <h3 className="font-heading text-[10px] font-bold uppercase tracking-[0.2em] text-primary text-glow-gold mb-3 text-center">
-                  ⚔ Member ⚔
+                  ⚔ {loggedInUser.position && loggedInUser.position !== "Chapter Member" ? loggedInUser.position.toUpperCase() : "MEMBER"} ⚔
                 </h3>
                 <div className="flex flex-col items-center gap-2">
                   <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-primary/40 bg-primary/10 flex items-center justify-center">
@@ -347,7 +377,7 @@ const Index = () => {
           {/* ─── RIGHT SIDEBAR ─── */}
           <div className="lg:col-span-3 space-y-3 order-3">
             {[
-              { icon: "📘", label: "FACEBOOK", desc: "Visit Our Page", href: "https://www.facebook.com/share/1E3rvGNzGp/" },
+              { icon: <Facebook size={18} className="text-[#1877F2] fill-[#1877F2]" />, label: "FACEBOOK", desc: "Visit Our Page", href: "https://www.facebook.com/share/1E3rvGNzGp/" },
               { icon: "🤝", label: "BROTHERHOOD", desc: "Our Pledge & Values", href: "/about" },
               { icon: "📋", label: "CHAPTER HISTORY", desc: "SWS Est. 2021", href: "/about" },
             ].map((btn, i) => (
