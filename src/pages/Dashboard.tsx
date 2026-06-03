@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
-import { User, Shield, QrCode, BarChart3, Camera, LogOut, Copy, Check, Download, X, ZoomIn, Smartphone, Edit2, PenTool, Upload } from "lucide-react";
+import { User, Shield, QrCode, BarChart3, Camera, LogOut, Copy, Check, Download, X, ZoomIn, Smartphone, Edit2, PenTool, Upload, Crown, Star, Users, UserCheck } from "lucide-react";
 import { getApiUrl } from "@/lib/utils";
 import QRCodeComponent from "react-qr-code";
 import Navbar from "@/components/Navbar";
@@ -9,6 +9,73 @@ import Footer from "@/components/Footer";
 import SignaturePad from "@/components/SignaturePad";
 import QRCode from "qrcode";
 import { COUNTRIES } from "./Register";
+
+const renderPositionBadge = (pos: string) => {
+  const size = 11;
+  let text = "MEMBER";
+  let colorClass = "bg-blue-500/20 text-blue-400 border border-blue-500/30";
+  let icon = <User size={size} className="transition-transform duration-300 animate-hover-bounce" />;
+
+  switch (pos) {
+    case "Chairman":
+      text = "CHAIRMAN";
+      colorClass = "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30";
+      icon = <Crown size={size} className="transition-transform duration-300 animate-hover-heartbeat" />;
+      break;
+    case "Vice-Chairman":
+      text = "VICE-CHAIRMAN";
+      colorClass = "bg-slate-400/20 text-slate-300 border border-slate-400/30";
+      icon = <Star size={size} className="transition-transform duration-300 animate-hover-spin" />;
+      break;
+    case "Recording Secretary":
+      text = "RECORDING SEC";
+      colorClass = "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+      icon = <Shield size={size} className="transition-transform duration-300 animate-hover-wobble" />;
+      break;
+    case "Corresponding Sec.":
+      text = "CORRESPONDING SEC";
+      colorClass = "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+      icon = <Shield size={size} className="transition-transform duration-300 animate-hover-wobble" />;
+      break;
+    case "Treasurer":
+      text = "TREASURER";
+      colorClass = "bg-amber-500/20 text-amber-400 border border-amber-500/30";
+      icon = <Shield size={size} className="transition-transform duration-300 animate-hover-wobble" />;
+      break;
+    case "Auditor":
+      text = "AUDITOR";
+      colorClass = "bg-violet-500/20 text-violet-400 border border-violet-500/30";
+      icon = <UserCheck size={size} className="transition-transform duration-300 animate-hover-bounce" />;
+      break;
+    case "PRO":
+      text = "PRO";
+      colorClass = "bg-teal-500/20 text-teal-400 border border-teal-500/30";
+      icon = <Users size={size} className="transition-transform duration-300 animate-hover-bounce" />;
+      break;
+    case "Sgt. at Arms":
+      text = "SGT. AT ARMS";
+      colorClass = "bg-red-500/20 text-red-400 border border-red-500/30";
+      icon = <Shield size={size} className="transition-transform duration-300 animate-hover-wobble" />;
+      break;
+    default:
+      text = "MEMBER";
+      colorClass = "bg-blue-500/20 text-blue-400 border border-blue-500/30";
+      icon = <User size={size} className="transition-transform duration-300 animate-hover-bounce" />;
+  }
+
+  return (
+    <span className={`px-1.5 py-0.5 rounded text-[9px] font-heading font-bold uppercase tracking-wider flex items-center gap-1.5 group cursor-default ${colorClass}`}>
+      {icon} {text}
+    </span>
+  );
+};
+
+const getDisplayPosition = (position: string, role: string) => {
+  if (!position || position === "Chapter Member") {
+    return "MEMBER";
+  }
+  return position;
+};
 
 // ── Modal overlay for QR / Barcode ───────────────────────────────────────────
 const MediaModal = ({
@@ -243,7 +310,7 @@ const CardPreview = ({
         <div 
           className="absolute left-0 right-0 text-center px-2 font-heading font-bold uppercase text-white truncate"
           style={{
-            top: "242px",
+            top: "239px",
             fontSize: "12px",
             letterSpacing: "0.05em",
           }}
@@ -260,7 +327,7 @@ const CardPreview = ({
             letterSpacing: "0.1em",
           }}
         >
-          {user.role || "MEMBER"}
+          {getDisplayPosition(user.position, user.role)}
         </div>
 
         {/* QR Code overlay */}
@@ -624,13 +691,13 @@ const Dashboard = () => {
       ctx.fillStyle = "#ffffff";
       ctx.font = "bold 34px Cinzel, serif";
       ctx.textAlign = "center";
-      ctx.fillText(displayName.toUpperCase(), 295.5, 650);
+      ctx.fillText(displayName.toUpperCase(), 295.5, 642);
 
       // 4. Draw Role
       ctx.fillStyle = "#c8920a";
       ctx.font = "bold 20px Cinzel, serif";
       ctx.textAlign = "center";
-      ctx.fillText((user.role || "MEMBER").toUpperCase(), 295.5, 690);
+      ctx.fillText(getDisplayPosition(user.position, user.role).toUpperCase(), 295.5, 690);
 
       // 5. Draw QR Code
       try {
@@ -779,7 +846,7 @@ const Dashboard = () => {
               left: 0;
               right: 0;
               text-align: center;
-              top: 55.4mm;
+              top: 54.9mm;
               font-family: 'Cinzel', serif;
               font-weight: bold;
               font-size: 8pt;
@@ -894,7 +961,7 @@ const Dashboard = () => {
                 <img src="${user.profileImage || ''}" alt="Photo" />
               </div>
               <div class="member-name">${displayName}</div>
-              <div class="member-role">${user.role || 'MEMBER'}</div>
+              <div class="member-role">${getDisplayPosition(user.position, user.role).toUpperCase()}</div>
               <div class="qr-code-box" id="print-qr"></div>
               <div class="id-num-box">
                 <div class="id-num-label">ID NUMBER:</div>
@@ -947,28 +1014,46 @@ const Dashboard = () => {
   useEffect(() => {
     const token = localStorage.getItem("sws_token");
     if (!token) { navigate("/login"); return; }
-    fetch(getApiUrl("/api/auth/me"), { headers: { Authorization: `Bearer ${token}` } })
-      .then(r => {
-        if (!r.ok) {
-          localStorage.removeItem("sws_token");
-          localStorage.removeItem("sws_user");
-          navigate("/login");
-          return;
-        }
-        return r.json();
-      })
-      .then(data => {
-        if (data && data.user) {
-          setUser(data.user);
-          localStorage.setItem("sws_user", JSON.stringify(data.user));
-          // Redirect admin to admin panel
-          if (data.user.role === "admin") {
-            navigate("/admin");
+    
+    let isMounted = true;
+    
+    const fetchProfile = () => {
+      fetch(getApiUrl("/api/auth/me"), { headers: { Authorization: `Bearer ${token}` } })
+        .then(r => {
+          if (!r.ok) {
+            if (isMounted) {
+              localStorage.removeItem("sws_token");
+              localStorage.removeItem("sws_user");
+              navigate("/login");
+            }
+            return;
           }
-        }
-      })
-      .catch(() => navigate("/login"))
-      .finally(() => setLoading(false));
+          return r.json();
+        })
+        .then(data => {
+          if (data && data.user && isMounted) {
+            setUser(data.user);
+            localStorage.setItem("sws_user", JSON.stringify(data.user));
+            // Redirect admin to admin panel
+            if (data.user.role === "admin") {
+              navigate("/admin");
+            }
+          }
+        })
+        .catch(() => {
+          if (isMounted) navigate("/login");
+        })
+        .finally(() => {
+          if (isMounted) setLoading(false);
+        });
+    };
+
+    fetchProfile();
+    const interval = setInterval(fetchProfile, 4000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
   }, []);
 
   // Render barcode whenever modal opens
@@ -1134,7 +1219,10 @@ const Dashboard = () => {
 
                   {/* Info */}
                   <div className="flex-1 text-center sm:text-left">
-                    <h1 className="font-heading text-2xl font-bold text-foreground">{displayName}</h1>
+                    <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2.5">
+                      <h1 className="font-heading text-2xl font-bold text-foreground">{displayName}</h1>
+                      {renderPositionBadge(user.position || "Chapter Member")}
+                    </div>
                     <p className="text-sm text-muted-foreground">@{user.username}</p>
                     <p className="text-xs text-muted-foreground">{user.email}</p>
                     {user.chapter && <p className="text-xs text-accent mt-1 font-heading">{user.chapter}</p>}
