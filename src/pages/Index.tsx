@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ChevronDown, Users, UserPlus, Shield, Star, Calendar, Facebook } from "lucide-react";
@@ -7,9 +8,11 @@ import DeadfrontTimer from "@/components/DeadfrontTimer";
 import CharacterGallery from "@/components/CharacterGallery";
 import TopPlayersSlider from "@/components/TopPlayersSlider";
 import BackgroundFX from "@/components/BackgroundFX";
+import MemberVerifierModal from "@/components/MemberVerifierModal";
 import heroBg from "@/assets/hero-bg.jpg";
 
 const Index = () => {
+  const [verifierOpen, setVerifierOpen] = useState(false);
   return (
     <div className="min-h-screen flex flex-col bg-background relative">
       <BackgroundFX />
@@ -245,10 +248,10 @@ const Index = () => {
               <Shield size={20} className="text-primary mx-auto mb-2" />
               <h3 className="font-heading text-[10px] font-bold uppercase tracking-wider text-primary mb-1">Member Verifier</h3>
               <p className="text-[10px] text-muted-foreground mb-2">Verify AKRho SWS membership</p>
-              <Link to="/member-verifier"
-                className="block w-full py-2 text-[11px] font-heading font-bold uppercase tracking-wider bg-gradient-to-b from-primary to-[hsl(35,70%,40%)] text-primary-foreground rounded-sm hover:brightness-110 transition-all border border-primary/60">
+              <button onClick={() => setVerifierOpen(true)}
+                className="block w-full py-2 text-[11px] font-heading font-bold uppercase tracking-wider bg-gradient-to-b from-primary to-[hsl(35,70%,40%)] text-primary-foreground rounded-sm hover:brightness-110 transition-all border border-primary/60 cursor-pointer">
                 Verify Now
-              </Link>
+              </button>
             </motion.div>
 
             {/* Upcoming Events */}
@@ -278,6 +281,7 @@ const Index = () => {
       </section>
 
       <Footer />
+      <MemberVerifierModal isOpen={verifierOpen} onClose={() => setVerifierOpen(false)} />
     </div>
   );
 };
