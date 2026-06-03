@@ -18,11 +18,12 @@ import About from "./pages/About";
 import Dashboard from "./pages/Dashboard";
 import AdminPanel from "./pages/AdminPanel";
 import NotFound from "./pages/NotFound";
-import YouTubeAudioPlayer from "./components/YouTubeAudioPlayer";
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
+import { AudioPlayerProvider } from "./context/AudioPlayerContext";
 
 const queryClient = new QueryClient();
 
+// Check if user has already passed the landing page this session
 // Check if user has already passed the landing page this session
 const hasEntered = () => sessionStorage.getItem("sws_entered") === "true";
 
@@ -34,19 +35,22 @@ const AppInner = () => {
   // Bypass landing page for verifier or download paths
   const isVerifierRoute = location.pathname === "/member-verifier" || location.pathname === "/download";
   
-  if (isVerifierRoute && sessionStorage.getItem("sws_entered") !== "true") {
-    sessionStorage.setItem("sws_entered", "true");
-  }
+  const [entered, setEntered] = useState(hasEntered() || isVerifierRoute);
 
-  const [showLanding, setShowLanding] = useState(!hasEntered() && !isVerifierRoute);
-  const [audioPlaying, setAudioPlaying] = useState(hasEntered() || isVerifierRoute);
-
-  // Sync landing page visibility if route changes
+  // Sync entered state if route changes to verifier
   useEffect(() => {
-    if (isVerifierRoute) {
-      setShowLanding(false);
+    if (isVerifierRoute && !entered) {
+      setEntered(true);
     }
-  }, [isVerifierRoute]);
+  }, [isVerifierRoute, entered]);
+
+  // Mark session as entered if the user is visiting any path other than root "/"
+  useEffect(() => {
+    if (location.pathname !== "/" && !entered) {
+      sessionStorage.setItem("sws_entered", "true");
+      setEntered(true);
+    }
+  }, [location.pathname, entered]);
 
   // Periodic heartbeat to track active online members
   useEffect(() => {
@@ -61,30 +65,23 @@ const AppInner = () => {
   }, []);
 
   const handleEnter = useCallback(() => {
-    // Mark session as entered
     sessionStorage.setItem("sws_entered", "true");
-    // Start audio (triggered by user gesture — satisfies browser autoplay policy)
-    setAudioPlaying(true);
-    // Hide landing and go to home
-    setShowLanding(false);
+    sessionStorage.setItem("sws_play_on_enter", "true");
+    setEntered(true);
     navigate("/", { replace: true });
   }, [navigate]);
 
-  if (showLanding) {
+  // Render landing page ONLY if user is on root "/" and has not entered
+  if (!entered && location.pathname === "/") {
     return (
       <>
         <LandingPage onEnter={handleEnter} />
-        {/* Audio player pre-mounted but only activates after user clicks */}
-        <YouTubeAudioPlayer playing={audioPlaying} />
       </>
     );
   }
 
   return (
-    <>
-      {/* Persistent audio player across all pages */}
-      <YouTubeAudioPlayer playing={audioPlaying} />
-
+    <AudioPlayerProvider>
       {/* PWA Install Prompt */}
       <PWAInstallPrompt />
 
@@ -104,7 +101,7 @@ const AppInner = () => {
         <Route path="/activities" element={<Index />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
-    </>
+    </AudioPlayerProvider>
   );
 };
 
