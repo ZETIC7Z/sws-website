@@ -1,13 +1,14 @@
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
-import { User, Mail, Lock, Camera, ChevronDown, Check, ArrowRight, ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { User, Mail, Lock, Camera, ChevronDown, Check, ArrowRight, ArrowLeft, Eye, EyeOff, Smartphone, X, PenTool, Upload } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { getApiUrl } from "@/lib/utils";
+import SignaturePad from "@/components/SignaturePad";
 
 // Country list with flag emoji
-const COUNTRIES = [
+export const COUNTRIES = [
   { name: "Afghanistan", code: "AF", flag: "🇦🇫" }, { name: "Albania", code: "AL", flag: "🇦🇱" },
   { name: "Algeria", code: "DZ", flag: "🇩🇿" }, { name: "Argentina", code: "AR", flag: "🇦🇷" },
   { name: "Australia", code: "AU", flag: "🇦🇺" }, { name: "Austria", code: "AT", flag: "🇦🇹" },
@@ -75,9 +76,32 @@ const Register = () => {
   const [avatarPreview, setAvatarPreview] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
 
+  // Signature States
+  const [signature, setSignature] = useState("");
+  const [sigType, setSigType] = useState<"draw" | "upload">("draw");
+  const [sigUploading, setSigUploading] = useState(false);
+  const sigFileRef = useRef<HTMLInputElement>(null);
+  const [isDrawingModalOpen, setIsDrawingModalOpen] = useState(false);
+  const [tempSignature, setTempSignature] = useState<string | null>(null);
+
   const filteredCountries = COUNTRIES.filter(c =>
     countrySearch === "" || c.name.toLowerCase().startsWith(countrySearch.toLowerCase())
   );
+
+  const handleSignatureUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setSigUploading(true);
+    try {
+      const { removeSignatureBackground } = await import("@/lib/signatureUtils");
+      const cleanSig = await removeSignatureBackground(file);
+      setSignature(cleanSig);
+    } catch (err: any) {
+      setError("Failed to process signature background. Try another image.");
+    } finally {
+      setSigUploading(false);
+    }
+  };
 
   const handleStep1 = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -136,6 +160,7 @@ const Register = () => {
         body: JSON.stringify({
           firstName, lastName, dateOfBirth: dob,
           address: { street, city, province, country: selectedCountry?.name || "", countryCode: selectedCountry?.code || "", flag: selectedCountry?.flag || "" },
+          signature,
         }),
       });
       const data = await res.json();
@@ -210,8 +235,8 @@ const Register = () => {
                         <input type={showPassword ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} required
                           placeholder="Min. 6 characters" className="w-full pl-9 pr-10 py-2.5 text-sm bg-background/60 border border-border rounded-lg focus:outline-none focus:border-primary/50 text-foreground" />
                         <button type="button" onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors flex items-center justify-center">
-                          {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/60 hover:text-primary transition-colors flex items-center justify-center z-10 cursor-pointer w-8 h-8">
+                          {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                         </button>
                       </div>
                       <p className="text-[8px] text-muted-foreground/60 mt-1 uppercase tracking-wider font-heading leading-normal">
@@ -225,8 +250,8 @@ const Register = () => {
                         <input type={showConfirm ? "text" : "password"} value={confirm} onChange={e => setConfirm(e.target.value)} required
                           placeholder="Repeat password" className="w-full pl-9 pr-10 py-2.5 text-sm bg-background/60 border border-border rounded-lg focus:outline-none focus:border-primary/50 text-foreground" />
                         <button type="button" onClick={() => setShowConfirm(!showConfirm)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors flex items-center justify-center">
-                          {showConfirm ? <EyeOff size={14} /> : <Eye size={14} />}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/60 hover:text-primary transition-colors flex items-center justify-center z-10 cursor-pointer w-8 h-8">
+                          {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
                         </button>
                       </div>
                       {confirm && (
@@ -350,6 +375,81 @@ const Register = () => {
                       )}
                     </div>
 
+                    {/* Signature Section */}
+                    <div className="border-t border-primary/10 pt-4 space-y-3">
+                      <label className="text-[10px] font-heading uppercase tracking-wider text-muted-foreground block">Signature</label>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Draw Box */}
+                        <div 
+                          onClick={() => {
+                            setTempSignature(signature || null);
+                            setIsDrawingModalOpen(true);
+                          }}
+                          className="group relative h-28 rounded-xl border border-dashed border-primary/30 bg-primary/5 hover:bg-primary/10 hover:border-primary/50 transition-all flex flex-col items-center justify-center cursor-pointer gap-2 overflow-hidden"
+                        >
+                          {signature ? (
+                            <div 
+                              className="absolute inset-0 flex items-center justify-center p-4"
+                              style={{
+                                background: "radial-gradient(circle at center, #3a0d0d 0%, #1c0606 100%)"
+                              }}
+                            >
+                              <img 
+                                src={signature} 
+                                alt="Signature Preview" 
+                                className="h-14 object-contain z-10 transition-transform group-hover:scale-105" 
+                                style={{ filter: "brightness(0) invert(1)" }}
+                              />
+                              <div className="absolute bottom-2 text-[8px] text-white/40 uppercase tracking-widest font-mono group-hover:text-primary transition-colors">
+                                Click to Redraw Signature
+                              </div>
+                            </div>
+                          ) : (
+                            <>
+                              <PenTool className="text-primary/50 group-hover:text-primary transition-colors w-6 h-6 animate-pulse-glow" />
+                              <span className="text-xs font-heading font-bold uppercase tracking-wider text-muted-foreground group-hover:text-foreground transition-colors">Draw Signature</span>
+                              <span className="text-[9px] text-muted-foreground/60 text-center px-4">Click to open drawing pad modal</span>
+                            </>
+                          )}
+                        </div>
+
+                        {/* Upload Box */}
+                        <div 
+                          onClick={() => sigFileRef.current?.click()}
+                          className="group relative h-28 rounded-xl border border-dashed border-primary/30 bg-primary/5 hover:bg-primary/10 hover:border-primary/50 transition-all flex flex-col items-center justify-center cursor-pointer gap-2 overflow-hidden"
+                        >
+                          {sigUploading ? (
+                            <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                          ) : (
+                            <>
+                              <Upload className="text-primary/50 group-hover:text-primary transition-colors w-6 h-6" />
+                              <span className="text-xs font-heading font-bold uppercase tracking-wider text-muted-foreground group-hover:text-foreground transition-colors">Upload Image</span>
+                              <span className="text-[9px] text-muted-foreground/60 text-center px-4">PNG/JPG. Background will be removed.</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+
+                      <input 
+                        ref={sigFileRef} 
+                        type="file" 
+                        accept="image/*" 
+                        className="hidden" 
+                        onChange={handleSignatureUpload} 
+                      />
+
+                      {signature && (
+                        <button
+                          type="button"
+                          onClick={() => setSignature("")}
+                          className="w-full py-2 border border-border rounded-lg text-xs font-heading font-bold uppercase tracking-wider text-red-400 hover:bg-red-500/10 hover:border-red-500/30 transition-all"
+                        >
+                          Remove Signature
+                        </button>
+                      )}
+                    </div>
+
                     <button type="submit" disabled={loading}
                       className="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-b from-primary to-[hsl(35,70%,40%)] text-primary-foreground font-heading font-bold text-sm uppercase tracking-wider rounded-lg border border-primary/60 hover:brightness-110 transition-all disabled:opacity-60 mt-2">
                       {loading ? "Saving..." : <><span>Complete Registration</span><Check size={16} /></>}
@@ -367,6 +467,62 @@ const Register = () => {
         </motion.div>
       </div>
       <Footer />
+      {/* ── Signature Drawing Modal ── */}
+      <AnimatePresence>
+        {isDrawingModalOpen && (
+          <motion.div
+            className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => {
+              setTempSignature(null);
+              setIsDrawingModalOpen(false);
+            }}
+          >
+            <motion.div
+              className="relative flex flex-col gap-4 max-w-lg w-full bg-zinc-950 border border-primary/20 rounded-2xl p-6 shadow-2xl"
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1.0, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button 
+                onClick={() => {
+                  setTempSignature(null);
+                  setIsDrawingModalOpen(false);
+                }}
+                className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center text-white transition-all"
+              >
+                <X size={16} />
+              </button>
+
+              <div className="space-y-1.5 pb-2">
+                <h3 className="font-heading text-lg font-bold text-primary uppercase tracking-widest text-glow-gold">Draw Signature</h3>
+                <p className="text-xs text-muted-foreground">Draw using your mouse, trackpad, or touch screen. Click Save Signature once finished.</p>
+              </div>
+
+              <div className="w-full">
+                <SignaturePad
+                  onSave={(base64) => {
+                    setSignature(base64);
+                    setTempSignature(null);
+                    setIsDrawingModalOpen(false);
+                  }}
+                  onChange={(base64) => {
+                    setTempSignature(base64);
+                  }}
+                  onCancel={() => {
+                    setTempSignature(null);
+                    setIsDrawingModalOpen(false);
+                  }}
+                  height={200}
+                />
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
