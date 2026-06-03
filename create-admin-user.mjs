@@ -43,7 +43,8 @@ async function run() {
     const password = "42564126";
     const hashed = await bcrypt.hash(password, 12);
     const accountId = "2026000001";
-    const qrCode = await QRCode.toDataURL(accountId, { errorCorrectionLevel: "H", width: 200 });
+    const verifyUrl = `${process.env.FRONTEND_URL || "https://sws-skeptrons.vercel.app"}/member-verifier?q=${accountId}`;
+    const qrCode = await QRCode.toDataURL(verifyUrl, { errorCorrectionLevel: "H", width: 250 });
 
     const admin = new User({
       username: "admin",
