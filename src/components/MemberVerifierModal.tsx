@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Shield, Search, QrCode, X, User, ChevronRight } from "lucide-react";
+import { getApiUrl } from "@/lib/utils";
 
 interface Member {
   accountId: string;
@@ -70,7 +71,7 @@ const MemberVerifierModal = ({ isOpen, onClose }: MemberVerifierModalProps) => {
     setNotFound(false);
     setSearchResult(null);
     try {
-      const res = await fetch(`/api/members/verify?q=${encodeURIComponent(id)}`);
+      const res = await fetch(getApiUrl(`/api/members/verify?q=${encodeURIComponent(id)}`));
       if (res.ok) {
         const data = await res.json();
         setSearchResult(data.member);
