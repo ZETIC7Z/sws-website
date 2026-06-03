@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
-import { User, Mail, Lock, Camera, ChevronDown, Check, ArrowRight, ArrowLeft } from "lucide-react";
+import { User, Mail, Lock, Camera, ChevronDown, Check, ArrowRight, ArrowLeft, Eye, EyeOff } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
@@ -57,6 +57,8 @@ const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   // Step 2
   const [firstName, setFirstName] = useState("");
@@ -197,17 +199,38 @@ const Register = () => {
                       <label className="text-[10px] font-heading uppercase tracking-wider text-muted-foreground">Password</label>
                       <div className="relative mt-1">
                         <Lock size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                        <input type="password" value={password} onChange={e => setPassword(e.target.value)} required
-                          placeholder="Min. 6 characters" className="w-full pl-9 pr-3 py-2.5 text-sm bg-background/60 border border-border rounded-lg focus:outline-none focus:border-primary/50" />
+                        <input type={showPassword ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} required
+                          placeholder="Min. 6 characters" className="w-full pl-9 pr-10 py-2.5 text-sm bg-background/60 border border-border rounded-lg focus:outline-none focus:border-primary/50 text-foreground" />
+                        <button type="button" onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors flex items-center justify-center">
+                          {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+                        </button>
                       </div>
                     </div>
                     <div>
                       <label className="text-[10px] font-heading uppercase tracking-wider text-muted-foreground">Confirm Password</label>
                       <div className="relative mt-1">
                         <Lock size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                        <input type="password" value={confirm} onChange={e => setConfirm(e.target.value)} required
-                          placeholder="Repeat password" className="w-full pl-9 pr-3 py-2.5 text-sm bg-background/60 border border-border rounded-lg focus:outline-none focus:border-primary/50" />
+                        <input type={showConfirm ? "text" : "password"} value={confirm} onChange={e => setConfirm(e.target.value)} required
+                          placeholder="Repeat password" className="w-full pl-9 pr-10 py-2.5 text-sm bg-background/60 border border-border rounded-lg focus:outline-none focus:border-primary/50 text-foreground" />
+                        <button type="button" onClick={() => setShowConfirm(!showConfirm)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors flex items-center justify-center">
+                          {showConfirm ? <EyeOff size={14} /> : <Eye size={14} />}
+                        </button>
                       </div>
+                      {confirm && (
+                        <div className="mt-1.5 flex items-center gap-1 text-[10px] uppercase tracking-wider font-heading">
+                          {password === confirm ? (
+                            <span className="text-primary flex items-center gap-1">
+                              <Check size={11} className="text-primary" /> Passwords Match
+                            </span>
+                          ) : (
+                            <span className="text-red-400">
+                              Passwords Do Not Match
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </div>
                     <button type="submit" disabled={loading}
                       className="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-b from-primary to-[hsl(35,70%,40%)] text-primary-foreground font-heading font-bold text-sm uppercase tracking-wider rounded-lg border border-primary/60 hover:brightness-110 transition-all disabled:opacity-60">
