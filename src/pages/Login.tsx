@@ -26,7 +26,8 @@ const Login = () => {
       if (!res.ok) return setError(data.error || "Login failed");
       localStorage.setItem("sws_token", data.token);
       localStorage.setItem("sws_user", JSON.stringify(data.user));
-      navigate("/dashboard");
+      // Redirect admin to admin panel
+      navigate(data.user.role === "admin" ? "/admin" : "/dashboard");
     } catch { setError("Connection error. Make sure the server is running."); }
     finally { setLoading(false); }
   };
@@ -53,7 +54,7 @@ const Login = () => {
                     <Mail size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                     <input type="text" value={email} onChange={e => setEmail(e.target.value)} required
                       placeholder="you@email.com or username"
-                      className="w-full pl-9 pr-3 py-2.5 text-sm bg-background/60 border border-border rounded-lg focus:outline-none focus:border-primary/50 text-foreground" />
+                      className="w-full pl-9 pr-3 py-2.5 text-sm bg-[hsl(20,15%,8%)] border border-border rounded-lg focus:outline-none focus:border-primary/50 text-foreground placeholder:text-muted-foreground/60" />
                   </div>
                 </div>
                 <div>
@@ -62,10 +63,10 @@ const Login = () => {
                     <Lock size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                     <input type={showPassword ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} required
                       placeholder="••••••••"
-                      className="w-full pl-9 pr-10 py-2.5 text-sm bg-background/60 border border-border rounded-lg focus:outline-none focus:border-primary/50 text-foreground" />
+                      className="w-full pl-9 pr-10 py-2.5 text-sm bg-[hsl(20,15%,8%)] border border-border rounded-lg focus:outline-none focus:border-primary/50 text-foreground placeholder:text-muted-foreground/60" />
                     <button type="button" onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors flex items-center justify-center">
-                      {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/60 hover:text-primary transition-colors flex items-center justify-center z-10 cursor-pointer w-8 h-8">
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
                   </div>
                 </div>
