@@ -36,6 +36,7 @@ const navLinks: NavItem[] = [
       { to: "/about", label: "More Info About Us" },
     ],
   },
+  { to: "/#sws-music-player", label: "SWS Music Playlist" },
   { to: "/members", label: "Members" },
   {
     to: "/member-verifier",
@@ -58,7 +59,16 @@ const DropdownItem = ({ item, onClose, onVerifyClick }: { item: NavItem; onClose
         className={`relative px-4 py-3 text-xs font-heading font-bold tracking-[0.15em] uppercase transition-all duration-200 hover:text-primary ${
           isActive ? "text-primary" : "text-foreground/80"
         }`}
-        onClick={onClose}
+        onClick={(e) => {
+          if (item.to === "/#sws-music-player") {
+            const el = document.getElementById("sws-music-player");
+            if (el) {
+              e.preventDefault();
+              el.scrollIntoView({ behavior: "smooth" });
+            }
+          }
+          onClose();
+        }}
       >
         {item.label}
         {isActive && (
@@ -223,7 +233,7 @@ const Navbar = () => {
           <div className="flex items-center justify-between h-14">
             {/* Left nav items */}
             <div className="hidden lg:flex items-center gap-0">
-              {navLinks.slice(0, 3).map((link) => (
+              {navLinks.slice(0, 4).map((link) => (
                 <DropdownItem key={link.to + link.label} item={link} onClose={() => {}} onVerifyClick={() => setVerifierOpen(true)} />
               ))}
             </div>
@@ -233,7 +243,7 @@ const Navbar = () => {
 
             {/* Right nav items */}
             <div className="hidden lg:flex items-center gap-0">
-              {navLinks.slice(3).map((link) => (
+              {navLinks.slice(4).map((link) => (
                 <DropdownItem key={link.to + link.label} item={link} onClose={() => {}} onVerifyClick={() => setVerifierOpen(true)} />
               ))}
               {/* Auth link at end */}
