@@ -227,8 +227,9 @@ app.get("/api/members/verify", async (req, res) => {
         chapter: user.chapter,
       }
     });
-  } catch {
-    res.status(500).json({ error: "Server error" });
+  } catch (err) {
+    console.error("Verification error:", err);
+    res.status(500).json({ error: "Server error", details: err.message });
   }
 });
 
