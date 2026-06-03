@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, Shield, Eye, EyeOff } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { getApiUrl } from "@/lib/utils";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -17,7 +18,7 @@ const Login = () => {
     e.preventDefault();
     setError(""); setLoading(true);
     try {
-      const res = await fetch("/api/auth/signin", {
+      const res = await fetch(getApiUrl("/api/auth/signin"), {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
