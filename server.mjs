@@ -125,7 +125,12 @@ app.post("/api/auth/signin", async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) return res.status(400).json({ error: "Email and password required" });
 
-    const user = await User.findOne({ email: email.toLowerCase() });
+    const user = await User.findOne({
+      $or: [
+        { email: email.toLowerCase() },
+        { username: email }
+      ]
+    });
     if (!user) return res.status(401).json({ error: "Invalid email or password" });
 
     const match = await bcrypt.compare(password, user.password);
