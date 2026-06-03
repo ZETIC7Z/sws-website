@@ -11,7 +11,7 @@ const footerLinks = [
 ];
 
 const Footer = () => (
-  <footer className="border-t-2 border-primary/30 mt-auto">
+  <footer className="border-t-2 border-primary/30 mt-auto" style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}>
     {/* Footer nav */}
     <div className="nav-banner py-4">
       <div className="container mx-auto px-4">
