@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import MemberVerifierModal from "./MemberVerifierModal";
 
 interface SubMenuItem {
   to: string;
@@ -47,7 +48,7 @@ const navLinks: NavItem[] = [
   { to: "/register", label: "Register" },
 ];
 
-const DropdownItem = ({ item, onClose }: { item: NavItem; onClose: () => void }) => {
+const DropdownItem = ({ item, onClose, onVerifyClick }: { item: NavItem; onClose: () => void; onVerifyClick?: () => void }) => {
   const location = useLocation();
   const isActive = location.pathname === item.to || item.children?.some(c => location.pathname === c.to);
 
@@ -87,7 +88,13 @@ const DropdownItem = ({ item, onClose }: { item: NavItem; onClose: () => void })
             <Link
               key={child.to}
               to={child.to}
-              onClick={onClose}
+              onClick={(e) => {
+                if (child.label === "Verify a Member" && onVerifyClick) {
+                  e.preventDefault();
+                  onVerifyClick();
+                }
+                onClose();
+              }}
               className="flex items-center px-4 py-2.5 text-xs font-heading tracking-wider text-foreground/70 hover:text-primary hover:bg-primary/10 transition-all duration-150"
             >
               <span className="text-primary/40 mr-2 text-[8px]">◆</span>
@@ -103,6 +110,7 @@ const DropdownItem = ({ item, onClose }: { item: NavItem; onClose: () => void })
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [verifierOpen, setVerifierOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -148,7 +156,7 @@ const Navbar = () => {
             {/* Left nav items */}
             <div className="hidden lg:flex items-center gap-0">
               {navLinks.slice(0, 3).map((link) => (
-                <DropdownItem key={link.to + link.label} item={link} onClose={() => {}} />
+                <DropdownItem key={link.to + link.label} item={link} onClose={() => {}} onVerifyClick={() => setVerifierOpen(true)} />
               ))}
             </div>
 
@@ -158,7 +166,7 @@ const Navbar = () => {
             {/* Right nav items */}
             <div className="hidden lg:flex items-center gap-0">
               {navLinks.slice(3).map((link) => (
-                <DropdownItem key={link.to + link.label} item={link} onClose={() => {}} />
+                <DropdownItem key={link.to + link.label} item={link} onClose={() => {}} onVerifyClick={() => setVerifierOpen(true)} />
               ))}
             </div>
 
@@ -196,7 +204,13 @@ const Navbar = () => {
                         <Link
                           key={child.to}
                           to={child.to}
-                          onClick={() => setMobileOpen(false)}
+                          onClick={(e) => {
+                            if (child.label === "Verify a Member") {
+                              e.preventDefault();
+                              setVerifierOpen(true);
+                            }
+                            setMobileOpen(false);
+                          }}
                           className="flex items-center gap-2 px-3 py-2 text-xs font-heading tracking-wider text-muted-foreground hover:text-primary transition-all"
                         >
                           <span className="text-primary/30 text-[8px]">◆</span>
@@ -219,6 +233,7 @@ const Navbar = () => {
           </motion.div>
         )}
       </AnimatePresence>
+      <MemberVerifierModal isOpen={verifierOpen} onClose={() => setVerifierOpen(false)} />
     </nav>
   );
 };
