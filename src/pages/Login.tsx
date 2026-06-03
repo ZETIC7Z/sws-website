@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
-import { Mail, Lock, Shield } from "lucide-react";
+import { Mail, Lock, Shield, Eye, EyeOff } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
@@ -9,6 +9,7 @@ const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -46,11 +47,11 @@ const Login = () => {
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="text-[10px] font-heading uppercase tracking-wider text-muted-foreground">Email</label>
+                  <label className="text-[10px] font-heading uppercase tracking-wider text-muted-foreground">Email or Username</label>
                   <div className="relative mt-1">
                     <Mail size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                    <input type="email" value={email} onChange={e => setEmail(e.target.value)} required
-                      placeholder="you@email.com"
+                    <input type="text" value={email} onChange={e => setEmail(e.target.value)} required
+                      placeholder="you@email.com or username"
                       className="w-full pl-9 pr-3 py-2.5 text-sm bg-background/60 border border-border rounded-lg focus:outline-none focus:border-primary/50 text-foreground" />
                   </div>
                 </div>
@@ -58,9 +59,13 @@ const Login = () => {
                   <label className="text-[10px] font-heading uppercase tracking-wider text-muted-foreground">Password</label>
                   <div className="relative mt-1">
                     <Lock size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                    <input type="password" value={password} onChange={e => setPassword(e.target.value)} required
+                    <input type={showPassword ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} required
                       placeholder="••••••••"
-                      className="w-full pl-9 pr-3 py-2.5 text-sm bg-background/60 border border-border rounded-lg focus:outline-none focus:border-primary/50 text-foreground" />
+                      className="w-full pl-9 pr-10 py-2.5 text-sm bg-background/60 border border-border rounded-lg focus:outline-none focus:border-primary/50 text-foreground" />
+                    <button type="button" onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors flex items-center justify-center">
+                      {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+                    </button>
                   </div>
                 </div>
                 <button type="submit" disabled={loading}
