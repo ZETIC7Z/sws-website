@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Crown, Shield, Star, Users, UserCheck } from "lucide-react";
+import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
@@ -100,7 +101,7 @@ const Members = () => (
           className="text-center text-xs text-muted-foreground mt-8"
         >
           To verify a member's legitimacy, use the{" "}
-          <a href="/member-verifier" className="text-primary hover:underline">Member Verifier</a>.
+          <Link to="/member-verifier" className="text-primary hover:underline">Member Verifier</Link>.
         </motion.p>
       </div>
     </div>
