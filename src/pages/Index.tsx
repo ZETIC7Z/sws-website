@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
-import { ChevronDown, Users, UserPlus, Shield, Star, Calendar, Facebook, Eye, EyeOff, Lock } from "lucide-react";
+import { ChevronDown, Users, UserPlus, Shield, Star, Calendar, Facebook, Eye, EyeOff, Lock, User, LayoutDashboard } from "lucide-react";
 import { getApiUrl } from "@/lib/utils";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -20,6 +20,41 @@ const Index = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [loggedInUser, setLoggedInUser] = useState<any>(null);
+  const [stats, setStats] = useState({ total: 0, online: 0 });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await fetch(getApiUrl("/api/members/stats"));
+        if (res.ok) {
+          const data = await res.json();
+          setStats(data);
+        }
+      } catch (err) {
+        console.error("Error fetching stats:", err);
+      }
+    };
+    fetchStats();
+    const statsInterval = setInterval(fetchStats, 10000);
+    return () => clearInterval(statsInterval);
+  }, []);
+
+  useEffect(() => {
+    const checkAuth = () => {
+      const token = localStorage.getItem("sws_token");
+      const userStr = localStorage.getItem("sws_user");
+      if (token && userStr) {
+        try { setLoggedInUser(JSON.parse(userStr)); } catch { setLoggedInUser(null); }
+      } else {
+        setLoggedInUser(null);
+      }
+    };
+    checkAuth();
+    window.addEventListener("storage", checkAuth);
+    const interval = setInterval(checkAuth, 2000);
+    return () => { window.removeEventListener("storage", checkAuth); clearInterval(interval); };
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,19 +123,27 @@ const Index = () => {
                 Brotherhood forged in truth, united in service. Est. 2021. <em>"Truth Conquers All."</em>
               </motion.p>
 
+              {/* ── Member Verifier (Always Visible in Hero) ── */}
               <motion.div
-                className="flex flex-col xs:flex-row items-center justify-center lg:justify-start gap-3"
-                initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
-                <Link to="/register"
-                  className="w-full xs:w-auto flex items-center justify-center gap-2 px-6 py-2.5 bg-gradient-to-b from-primary to-[hsl(35,70%,40%)] text-primary-foreground font-heading text-xs sm:text-sm font-bold tracking-wider rounded-sm glow-gold hover:scale-105 transition-transform duration-200 border border-primary/60">
-                  <UserPlus size={16} />
-                  SIGN UP
-                </Link>
-                <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer"
-                  className="w-full xs:w-auto flex items-center justify-center gap-2 px-6 py-2.5 scroll-panel text-foreground font-heading text-xs sm:text-sm font-bold tracking-wider rounded-sm hover:bg-primary/10 transition-all duration-200">
-                  <Facebook size={16} className="text-primary" />
-                  FACEBOOK PAGE
-                </a>
+                initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}
+                className="flex flex-col sm:flex-row items-center justify-between gap-4 p-6 sm:p-8 rounded-xl border border-primary/30 bg-black/40 backdrop-blur-sm max-w-md lg:max-w-xl w-full"
+                style={{ boxShadow: "0 0 30px rgba(200,146,10,0.15), inset 0 1px 0 rgba(200,146,10,0.15)" }}
+              >
+                <div className="flex items-center gap-4 text-center sm:text-left flex-col sm:flex-row">
+                  <div className="w-14 h-14 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center flex-shrink-0">
+                    <Shield size={26} className="text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-heading text-base font-bold text-primary uppercase tracking-widest">
+                      Member Verifier
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">Verify Alpha Kappa Rho SWS membership status</p>
+                  </div>
+                </div>
+                <button onClick={() => setVerifierOpen(true)}
+                  className="w-full sm:w-auto flex-shrink-0 flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-b from-primary to-[hsl(35,70%,40%)] text-primary-foreground font-heading font-bold text-xs uppercase tracking-widest rounded-lg border border-primary/60 hover:scale-105 transition-all duration-200 cursor-pointer shadow-lg shadow-primary/10">
+                  Verify Now
+                </button>
               </motion.div>
             </div>
 
@@ -197,46 +240,81 @@ const Index = () => {
           {/* ─── LEFT SIDEBAR ─── */}
           <div className="lg:col-span-3 space-y-4 order-2 lg:order-1">
 
-            {/* Login */}
-            <motion.div className="scroll-panel rounded-lg p-4 ornate-border"
-              initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}>
-              <h3 className="font-heading text-[10px] font-bold uppercase tracking-[0.2em] text-primary text-glow-gold mb-3 text-center">
-                ⚔ Member Login ⚔
-              </h3>
-              {error && (
-                <div className="p-2 rounded bg-red-500/10 border border-red-500/30 text-[10px] text-red-400 text-center mb-2.5">
-                  {error}
-                </div>
-              )}
-              <form onSubmit={handleLogin} className="space-y-2.5">
-                <div>
-                  <label className="text-[10px] font-heading text-muted-foreground uppercase tracking-wider">Username / Email</label>
-                  <input type="text" placeholder="Enter username or email"
-                    value={email} onChange={e => setEmail(e.target.value)} required
-                    className="w-full h-8 px-3 text-xs bg-background/60 border border-border rounded-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50 mt-1" />
-                </div>
-                <div>
-                  <label className="text-[10px] font-heading text-muted-foreground uppercase tracking-wider">Password</label>
-                  <div className="relative mt-1">
-                    <input type={showPassword ? "text" : "password"} placeholder="••••••••"
-                      value={password} onChange={e => setPassword(e.target.value)} required
-                      className="w-full h-8 pl-3 pr-8 text-xs bg-background/60 border border-border rounded-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50" />
-                    <button type="button" onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors flex items-center justify-center">
-                      {showPassword ? <EyeOff size={11} /> : <Eye size={11} />}
-                    </button>
+            {/* Login / Profile Box */}
+            {loggedInUser ? (
+              /* ── Logged-in profile card ── */
+              <motion.div className="scroll-panel rounded-lg p-4 ornate-border"
+                initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}>
+                <h3 className="font-heading text-[10px] font-bold uppercase tracking-[0.2em] text-primary text-glow-gold mb-3 text-center">
+                  ⚔ Member ⚔
+                </h3>
+                <div className="flex flex-col items-center gap-2">
+                  <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-primary/40 bg-primary/10 flex items-center justify-center">
+                    {loggedInUser.profileImage
+                      ? <img src={loggedInUser.profileImage} alt="" className="w-full h-full object-cover" />
+                      : <User size={28} className="text-primary/50" />
+                    }
                   </div>
+                  <div className="text-center">
+                    <p className="font-heading text-sm font-bold text-foreground">
+                      {loggedInUser.firstName && loggedInUser.lastName
+                        ? `${loggedInUser.firstName} ${loggedInUser.lastName}`
+                        : loggedInUser.username}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground">@{loggedInUser.username}</p>
+                    {loggedInUser.accountId && (
+                      <p className="text-[10px] font-mono text-primary/70 mt-0.5">{loggedInUser.accountId}</p>
+                    )}
+                  </div>
+                  <Link to="/dashboard"
+                    className="w-full flex items-center justify-center gap-2 h-8 text-xs font-heading font-bold uppercase tracking-wider bg-gradient-to-b from-primary to-[hsl(35,70%,40%)] text-primary-foreground rounded-sm hover:brightness-110 transition-all border border-primary/60">
+                    <LayoutDashboard size={13} />
+                    Account Dashboard
+                  </Link>
                 </div>
-                <button type="submit" disabled={loading}
-                  className="w-full h-8 text-xs font-heading font-bold uppercase tracking-wider bg-gradient-to-b from-primary to-[hsl(35,70%,40%)] text-primary-foreground rounded-sm hover:brightness-110 transition-all border border-primary/60 disabled:opacity-60">
-                  {loading ? "Logging in..." : "Log In"}
-                </button>
-                <div className="flex items-center justify-between text-[10px]">
-                  <Link to="/register" className="text-primary hover:underline font-heading">Create Account</Link>
-                  <span className="text-muted-foreground hover:text-primary cursor-pointer font-heading">Forgot?</span>
-                </div>
-              </form>
-            </motion.div>
+              </motion.div>
+            ) : (
+              /* ── Logged-out login form ── */
+              <motion.div className="scroll-panel rounded-lg p-4 ornate-border"
+                initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}>
+                <h3 className="font-heading text-[10px] font-bold uppercase tracking-[0.2em] text-primary text-glow-gold mb-3 text-center">
+                  ⚔ Member Login ⚔
+                </h3>
+                {error && (
+                  <div className="p-2 rounded bg-red-500/10 border border-red-500/30 text-[10px] text-red-400 text-center mb-2.5">
+                    {error}
+                  </div>
+                )}
+                <form onSubmit={handleLogin} className="space-y-2.5">
+                  <div>
+                    <label className="text-[10px] font-heading text-muted-foreground uppercase tracking-wider">Username / Email</label>
+                    <input type="text" placeholder="Enter username or email"
+                      value={email} onChange={e => setEmail(e.target.value)} required
+                      className="w-full h-8 px-3 text-xs bg-background/60 border border-border rounded-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50 mt-1" />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-heading text-muted-foreground uppercase tracking-wider">Password</label>
+                    <div className="relative mt-1">
+                      <input type={showPassword ? "text" : "password"} placeholder="••••••••"
+                        value={password} onChange={e => setPassword(e.target.value)} required
+                        className="w-full h-8 pl-3 pr-10 text-xs bg-background/60 border border-border rounded-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50" />
+                      <button type="button" onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-1 top-1/2 -translate-y-1/2 text-foreground/60 hover:text-primary transition-colors flex items-center justify-center z-10 cursor-pointer w-8 h-8">
+                        {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+                      </button>
+                    </div>
+                  </div>
+                  <button type="submit" disabled={loading}
+                    className="w-full h-8 text-xs font-heading font-bold uppercase tracking-wider bg-gradient-to-b from-primary to-[hsl(35,70%,40%)] text-primary-foreground rounded-sm hover:brightness-110 transition-all border border-primary/60 disabled:opacity-60">
+                    {loading ? "Logging in..." : "Log In"}
+                  </button>
+                  <div className="flex items-center justify-between text-[10px]">
+                    <Link to="/register" className="text-primary hover:underline font-heading">Create Account</Link>
+                    <span className="text-muted-foreground hover:text-primary cursor-pointer font-heading">Forgot?</span>
+                  </div>
+                </form>
+              </motion.div>
+            )}
 
             {/* Chapter Stats */}
             <motion.div className="scroll-panel rounded-lg p-3 ornate-border"
@@ -269,7 +347,7 @@ const Index = () => {
           {/* ─── RIGHT SIDEBAR ─── */}
           <div className="lg:col-span-3 space-y-3 order-3">
             {[
-              { icon: "📘", label: "FACEBOOK", desc: "Visit Our Page", href: "https://www.facebook.com" },
+              { icon: "📘", label: "FACEBOOK", desc: "Visit Our Page", href: "https://www.facebook.com/share/1E3rvGNzGp/" },
               { icon: "🤝", label: "BROTHERHOOD", desc: "Our Pledge & Values", href: "/about" },
               { icon: "📋", label: "CHAPTER HISTORY", desc: "SWS Est. 2021", href: "/about" },
             ].map((btn, i) => (
@@ -286,34 +364,40 @@ const Index = () => {
               </motion.a>
             ))}
 
-            {/* Member Verifier */}
-            <motion.div className="scroll-panel rounded-lg p-4 ornate-border text-center"
-              initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5 }}>
-              <Shield size={20} className="text-primary mx-auto mb-2" />
-              <h3 className="font-heading text-[10px] font-bold uppercase tracking-wider text-primary mb-1">Member Verifier</h3>
-              <p className="text-[10px] text-muted-foreground mb-2">Verify AKRho SWS membership</p>
-              <button onClick={() => setVerifierOpen(true)}
-                className="block w-full py-2 text-[11px] font-heading font-bold uppercase tracking-wider bg-gradient-to-b from-primary to-[hsl(35,70%,40%)] text-primary-foreground rounded-sm hover:brightness-110 transition-all border border-primary/60 cursor-pointer">
-                Verify Now
-              </button>
-            </motion.div>
 
-            {/* Upcoming Events */}
-            <motion.div className="scroll-panel rounded-lg p-3 ornate-border"
+
+            {/* Membership Stats */}
+            <motion.div className="scroll-panel rounded-lg p-4 ornate-border"
               initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.6 }}>
-              <h3 className="font-heading text-[10px] font-bold uppercase tracking-[0.2em] text-primary mb-2 flex items-center gap-1.5">
-                <Calendar size={11} /> Upcoming Events
+              <h3 className="font-heading text-[10px] font-bold uppercase tracking-[0.2em] text-primary mb-3 flex items-center gap-1.5">
+                <Users size={11} className="text-primary" /> Chapter Statistics
               </h3>
-              {[
-                { name: "53rd AKRho Anniversary", time: "Aug 8" },
-                { name: "SWS Chapter Meeting", time: "TBA" },
-                { name: "Brotherhood Bonding", time: "TBA" },
-              ].map((e, i) => (
-                <div key={i} className="flex items-center justify-between py-1.5 border-b border-border/20 last:border-b-0">
-                  <span className="text-[11px] text-foreground/80 leading-tight">{e.name}</span>
-                  <span className="text-[10px] font-mono text-primary ml-2 flex-shrink-0">{e.time}</span>
+              <div className="space-y-3">
+                {/* Total Registered */}
+                <div className="flex items-center justify-between p-2.5 rounded bg-primary/5 border border-primary/10">
+                  <div className="flex items-center gap-2">
+                    <User size={14} className="text-primary" />
+                    <span className="text-[11px] text-foreground/80 font-bold uppercase tracking-wider">Total Registered</span>
+                  </div>
+                  <span className="text-sm font-mono font-bold text-foreground text-glow-gold">
+                    {stats.total}
+                  </span>
                 </div>
-              ))}
+                
+                {/* Active Online */}
+                <div className="flex items-center justify-between p-2.5 rounded bg-primary/5 border border-primary/10">
+                  <div className="flex items-center gap-2">
+                    <div className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-success"></span>
+                    </div>
+                    <span className="text-[11px] text-foreground/80 font-bold uppercase tracking-wider">Active Online</span>
+                  </div>
+                  <span className="text-sm font-mono font-bold text-success text-glow-success">
+                    {stats.online}
+                  </span>
+                </div>
+              </div>
             </motion.div>
           </div>
         </div>
