@@ -1,9 +1,10 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes, useNavigate } from "react-router-dom";
+import { BrowserRouter, Route, Routes, useNavigate, useLocation } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { getApiUrl } from "@/lib/utils";
 
 import LandingPage from "./pages/LandingPage";
 import Index from "./pages/Index";
@@ -15,8 +16,10 @@ import MemberVerifier from "./pages/DownloadPage";
 import WhatIsAkrho from "./pages/WhatIsAkrho";
 import About from "./pages/About";
 import Dashboard from "./pages/Dashboard";
+import AdminPanel from "./pages/AdminPanel";
 import NotFound from "./pages/NotFound";
 import YouTubeAudioPlayer from "./components/YouTubeAudioPlayer";
+import PWAInstallPrompt from "./components/PWAInstallPrompt";
 
 const queryClient = new QueryClient();
 
@@ -25,9 +28,37 @@ const hasEntered = () => sessionStorage.getItem("sws_entered") === "true";
 
 // Inner app that has access to router context
 const AppInner = () => {
-  const [showLanding, setShowLanding] = useState(!hasEntered());
-  const [audioPlaying, setAudioPlaying] = useState(hasEntered());
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Bypass landing page for verifier or download paths
+  const isVerifierRoute = location.pathname === "/member-verifier" || location.pathname === "/download";
+  
+  if (isVerifierRoute && sessionStorage.getItem("sws_entered") !== "true") {
+    sessionStorage.setItem("sws_entered", "true");
+  }
+
+  const [showLanding, setShowLanding] = useState(!hasEntered() && !isVerifierRoute);
+  const [audioPlaying, setAudioPlaying] = useState(hasEntered() || isVerifierRoute);
+
+  // Sync landing page visibility if route changes
+  useEffect(() => {
+    if (isVerifierRoute) {
+      setShowLanding(false);
+    }
+  }, [isVerifierRoute]);
+
+  // Periodic heartbeat to track active online members
+  useEffect(() => {
+    const sendHeartbeat = () => {
+      const token = localStorage.getItem("sws_token");
+      if (!token) return;
+      fetch(getApiUrl("/api/auth/me"), { headers: { Authorization: `Bearer ${token}` } }).catch(() => {});
+    };
+    sendHeartbeat();
+    const heartbeatInterval = setInterval(sendHeartbeat, 30000);
+    return () => clearInterval(heartbeatInterval);
+  }, []);
 
   const handleEnter = useCallback(() => {
     // Mark session as entered
@@ -54,11 +85,15 @@ const AppInner = () => {
       {/* Persistent audio player across all pages */}
       <YouTubeAudioPlayer playing={audioPlaying} />
 
+      {/* PWA Install Prompt */}
+      <PWAInstallPrompt />
+
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/admin" element={<AdminPanel />} />
         <Route path="/news" element={<News />} />
         <Route path="/members" element={<Members />} />
         <Route path="/rankings" element={<Members />} />
