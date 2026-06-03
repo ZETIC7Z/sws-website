@@ -57,6 +57,7 @@ const userSchema = new mongoose.Schema({
   },
   chapter: { type: String, default: "SWS Skeptrons – Region VII" },
   role: { type: String, default: "member" },
+  position: { type: String, default: "Chapter Member" },
   isProfileComplete: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
   lastActive: { type: Date, default: Date.now },
@@ -129,7 +130,8 @@ app.post("/api/auth/signup", async (req, res) => {
       token,
       user: {
         id: user._id, username, email, accountId, qrCode, signature: "", isProfileComplete: false,
-        signaturePosition: { x: 28, y: 72, width: 44, height: 9 }
+        signaturePosition: { x: 28, y: 72, width: 44, height: 9 },
+        position: user.position || "Chapter Member"
       },
     });
   } catch (err) {
@@ -165,6 +167,7 @@ app.post("/api/auth/signin", async (req, res) => {
         accountId: user.accountId, firstName: user.firstName, lastName: user.lastName,
         profileImage: user.profileImage, qrCode: user.qrCode, signature: user.signature || "",
         isProfileComplete: user.isProfileComplete, role: user.role,
+        position: user.position || "Chapter Member",
         signaturePosition: user.signaturePosition || { x: 28, y: 72, width: 44, height: 9 },
       },
     });
@@ -363,7 +366,7 @@ app.delete("/api/admin/members/:id", adminMiddleware, async (req, res) => {
 app.put("/api/admin/members/:id", adminMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
-    const { username, email, firstName, lastName, role, chapter, isProfileComplete } = req.body;
+    const { username, email, firstName, lastName, role, chapter, isProfileComplete, position } = req.body;
 
     const target = await User.findById(id);
     if (!target) return res.status(404).json({ error: "Member not found" });
@@ -388,6 +391,7 @@ app.put("/api/admin/members/:id", adminMiddleware, async (req, res) => {
     if (lastName !== undefined) target.lastName = lastName;
     if (chapter !== undefined) target.chapter = chapter;
     if (isProfileComplete !== undefined) target.isProfileComplete = isProfileComplete;
+    if (position !== undefined) target.position = position;
 
     await target.save();
     res.json({ message: "Member updated successfully", member: {
@@ -399,6 +403,7 @@ app.put("/api/admin/members/:id", adminMiddleware, async (req, res) => {
       lastName: target.lastName,
       role: target.role,
       chapter: target.chapter,
+      position: target.position,
       isProfileComplete: target.isProfileComplete,
       createdAt: target.createdAt,
       lastActive: target.lastActive
