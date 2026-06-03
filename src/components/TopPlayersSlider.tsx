@@ -3,12 +3,26 @@ import { Crown, Shield, Star, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const officers = [
-  { rank: 1, title: "Grand Skeptron", name: "Chapter President", badge: "GS", icon: Crown },
-  { rank: 2, title: "Vice Skeptron", name: "Chapter VP", badge: "VS", icon: Star },
-  { rank: 3, title: "Secretary", name: "Chapter Secretary", badge: "SC", icon: Shield },
+  { rank: 1, title: "EJULITOR TAJANLANGIT JR", name: "Chairman", badge: "CH", icon: Crown },
+  { rank: 2, title: "ARGEL B MISLANG", name: "Vice-Chairman", badge: "VC", icon: Star },
+  { rank: 3, title: "Recording Secretary", name: "Chapter Secretary", badge: "RS", icon: Shield },
   { rank: 4, title: "Treasurer", name: "Chapter Treasurer", badge: "TR", icon: Shield },
   { rank: 5, title: "PRO", name: "Public Relations Officer", badge: "PR", icon: Users },
 ];
+
+const getAnimationClass = (badge: string) => {
+  switch (badge) {
+    case "CH": return "animate-hover-heartbeat";
+    case "VC": return "animate-hover-spin";
+    case "RS":
+    case "TR":
+      return "animate-hover-wobble";
+    case "PR":
+      return "animate-hover-bounce";
+    default:
+      return "";
+  }
+};
 
 const ChapterOfficers = () => {
   return (
@@ -33,7 +47,7 @@ const ChapterOfficers = () => {
           return (
             <div
               key={officer.rank}
-              className={`flex items-center gap-3 py-2 px-2 -mx-2 rounded transition-colors duration-200 hover:bg-primary/5 ${
+              className={`flex items-center gap-3 py-2 px-2 -mx-2 rounded transition-colors duration-200 hover:bg-primary/5 group ${
                 i < officers.length - 1 ? "border-b border-border/20" : ""
               }`}
             >
@@ -49,7 +63,7 @@ const ChapterOfficers = () => {
                 <p className="font-heading text-xs font-bold text-foreground truncate">{officer.title}</p>
                 <p className="text-[10px] text-primary/70">{officer.name}</p>
               </div>
-              <Icon size={12} className="text-primary/40 flex-shrink-0" />
+              <Icon size={12} className={`text-primary/40 flex-shrink-0 transition-transform duration-300 ${getAnimationClass(officer.badge)}`} />
             </div>
           );
         })}
