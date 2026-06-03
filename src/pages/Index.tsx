@@ -94,7 +94,7 @@ const Index = () => {
                 <Link to="/register"
                   className="w-full xs:w-auto flex items-center justify-center gap-2 px-6 py-2.5 bg-gradient-to-b from-primary to-[hsl(35,70%,40%)] text-primary-foreground font-heading text-xs sm:text-sm font-bold tracking-wider rounded-sm glow-gold hover:scale-105 transition-transform duration-200 border border-primary/60">
                   <UserPlus size={16} />
-                  JOIN THE CHAPTER
+                  SIGN UP
                 </Link>
                 <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer"
                   className="w-full xs:w-auto flex items-center justify-center gap-2 px-6 py-2.5 scroll-panel text-foreground font-heading text-xs sm:text-sm font-bold tracking-wider rounded-sm hover:bg-primary/10 transition-all duration-200">
