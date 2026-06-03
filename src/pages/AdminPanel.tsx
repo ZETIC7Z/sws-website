@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import {
   Shield, Users, Trash2, Edit2, RefreshCw, Search, X, LogOut,
-  UserCheck, AlertTriangle, Crown, ChevronRight, Database
+  UserCheck, AlertTriangle, Crown, ChevronRight, Database, Star, User
 } from "lucide-react";
 import { getApiUrl } from "@/lib/utils";
 import Navbar from "@/components/Navbar";
@@ -17,12 +17,73 @@ interface Member {
   firstName: string;
   lastName: string;
   role: string;
+  position?: string;
   isProfileComplete: boolean;
   createdAt: string;
   lastActive: string;
   chapter: string;
   profileImage?: string;
 }
+
+const renderPositionBadge = (pos: string) => {
+  const size = 11;
+  let text = "MEMBER";
+  let colorClass = "bg-blue-500/20 text-blue-400 border border-blue-500/30";
+  let icon = <User size={size} className="transition-transform duration-300 animate-hover-bounce" />;
+
+  switch (pos) {
+    case "Chairman":
+      text = "CHAIRMAN";
+      colorClass = "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30";
+      icon = <Crown size={size} className="transition-transform duration-300 animate-hover-heartbeat" />;
+      break;
+    case "Vice-Chairman":
+      text = "VICE-CHAIRMAN";
+      colorClass = "bg-slate-400/20 text-slate-300 border border-slate-400/30";
+      icon = <Star size={size} className="transition-transform duration-300 animate-hover-spin" />;
+      break;
+    case "Recording Secretary":
+      text = "RECORDING SEC";
+      colorClass = "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+      icon = <Shield size={size} className="transition-transform duration-300 animate-hover-wobble" />;
+      break;
+    case "Corresponding Sec.":
+      text = "CORRESPONDING SEC";
+      colorClass = "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+      icon = <Shield size={size} className="transition-transform duration-300 animate-hover-wobble" />;
+      break;
+    case "Treasurer":
+      text = "TREASURER";
+      colorClass = "bg-amber-500/20 text-amber-400 border border-amber-500/30";
+      icon = <Shield size={size} className="transition-transform duration-300 animate-hover-wobble" />;
+      break;
+    case "Auditor":
+      text = "AUDITOR";
+      colorClass = "bg-violet-500/20 text-violet-400 border border-violet-500/30";
+      icon = <UserCheck size={size} className="transition-transform duration-300 animate-hover-bounce" />;
+      break;
+    case "PRO":
+      text = "PRO";
+      colorClass = "bg-teal-500/20 text-teal-400 border border-teal-500/30";
+      icon = <Users size={size} className="transition-transform duration-300 animate-hover-bounce" />;
+      break;
+    case "Sgt. at Arms":
+      text = "SGT. AT ARMS";
+      colorClass = "bg-red-500/20 text-red-400 border border-red-500/30";
+      icon = <Shield size={size} className="transition-transform duration-300 animate-hover-wobble" />;
+      break;
+    default:
+      text = "MEMBER";
+      colorClass = "bg-blue-500/20 text-blue-400 border border-blue-500/30";
+      icon = <User size={size} className="transition-transform duration-300 animate-hover-bounce" />;
+  }
+
+  return (
+    <span className={`px-1.5 py-0.5 rounded text-[9px] font-heading font-bold uppercase tracking-wider flex items-center gap-1.5 group cursor-default ${colorClass}`}>
+      {icon} {text}
+    </span>
+  );
+};
 
 const AdminPanel = () => {
   const navigate = useNavigate();
@@ -43,6 +104,7 @@ const AdminPanel = () => {
   const [editLastName, setEditLastName] = useState("");
   const [editChapter, setEditChapter] = useState("");
   const [editRole, setEditRole] = useState("");
+  const [editPosition, setEditPosition] = useState("");
   const [editIsProfileComplete, setEditIsProfileComplete] = useState(false);
   const [editLoading, setEditLoading] = useState(false);
   const [editError, setEditError] = useState("");
@@ -117,6 +179,7 @@ const AdminPanel = () => {
     setEditLastName(member.lastName || "");
     setEditChapter(member.chapter || "");
     setEditRole(member.role);
+    setEditPosition(member.position || "Chapter Member");
     setEditIsProfileComplete(member.isProfileComplete);
     setEditError("");
   };
@@ -140,6 +203,7 @@ const AdminPanel = () => {
           firstName: editFirstName,
           lastName: editLastName,
           role: editRole,
+          position: editPosition,
           chapter: editChapter,
           isProfileComplete: editIsProfileComplete
         })
@@ -289,7 +353,7 @@ const AdminPanel = () => {
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: idx * 0.03 }}
-                    className="flex items-center gap-4 p-4 hover:bg-primary/5 transition-colors"
+                    className="flex items-center gap-4 p-4 hover:bg-primary/5 transition-colors group"
                   >
                     {/* Avatar */}
                     <div className="relative flex-shrink-0">
@@ -308,6 +372,7 @@ const AdminPanel = () => {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <p className="font-heading text-sm font-bold text-foreground">@{member.username}</p>
+                        {renderPositionBadge(member.position || "Chapter Member")}
                         {member.role === "admin" && (
                           <span className="px-1.5 py-0.5 rounded text-[9px] font-heading font-bold uppercase tracking-wider bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
                             Admin
@@ -522,16 +587,35 @@ const AdminPanel = () => {
                         <option value="admin">Admin</option>
                       </select>
                     </div>
-                    <div className="flex items-center gap-2 mt-5">
-                      <input
-                        type="checkbox"
-                        id="isProfileComplete"
-                        checked={editIsProfileComplete}
-                        onChange={e => setEditIsProfileComplete(e.target.checked)}
-                        className="w-4 h-4 rounded border-border bg-[hsl(20,15%,8%)] text-primary focus:ring-primary/50"
-                      />
-                      <label htmlFor="isProfileComplete" className="text-[10px] font-heading uppercase tracking-wider text-muted-foreground cursor-pointer select-none">Profile Complete</label>
+                    <div>
+                      <label className="text-[10px] font-heading uppercase tracking-wider text-muted-foreground">Position</label>
+                      <select
+                        value={editPosition}
+                        onChange={e => setEditPosition(e.target.value)}
+                        className="w-full mt-1 px-3 py-2.5 text-xs bg-[hsl(20,15%,8%)] border border-border rounded-lg focus:outline-none focus:border-primary/50 text-foreground"
+                      >
+                        <option value="Chairman">Chairman</option>
+                        <option value="Vice-Chairman">Vice-Chairman</option>
+                        <option value="Recording Secretary">Recording Secretary</option>
+                        <option value="Corresponding Sec.">Corresponding Sec.</option>
+                        <option value="Treasurer">Treasurer</option>
+                        <option value="Auditor">Auditor</option>
+                        <option value="PRO">PRO</option>
+                        <option value="Sgt. at Arms">Sgt. at Arms</option>
+                        <option value="Chapter Member">Chapter Member</option>
+                      </select>
                     </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 mt-2">
+                    <input
+                      type="checkbox"
+                      id="isProfileComplete"
+                      checked={editIsProfileComplete}
+                      onChange={e => setEditIsProfileComplete(e.target.checked)}
+                      className="w-4 h-4 rounded border-border bg-[hsl(20,15%,8%)] text-primary focus:ring-primary/50"
+                    />
+                    <label htmlFor="isProfileComplete" className="text-[10px] font-heading uppercase tracking-wider text-muted-foreground cursor-pointer select-none">Profile Complete</label>
                   </div>
 
                   <div className="flex gap-3 pt-3 border-t border-primary/10">
