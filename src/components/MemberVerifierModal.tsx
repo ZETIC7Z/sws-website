@@ -51,7 +51,15 @@ const MemberVerifierModal = ({ isOpen, onClose }: MemberVerifierModalProps) => {
           { fps: 10, qrbox: { width: 220, height: 220 } },
           (decoded) => {
             qr.stop();
-            handleSearch(decoded.trim());
+            let val = decoded.trim();
+            if (val.startsWith("http://") || val.startsWith("https://")) {
+              try {
+                const urlObj = new URL(val);
+                const qParam = urlObj.searchParams.get("q");
+                if (qParam) val = qParam;
+              } catch (e) {}
+            }
+            handleSearch(val);
           },
           () => {}
         ).catch(console.error);
@@ -225,7 +233,7 @@ const MemberVerifierModal = ({ isOpen, onClose }: MemberVerifierModalProps) => {
               <AnimatePresence>
                 {mode !== "qr" && (
                   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                    className="grid grid-cols-2 gap-3 pt-1">
+                    className={`grid ${mode === "search" ? "grid-cols-1" : "grid-cols-2"} gap-3 pt-1`}>
                     {/* Member ID button */}
                     <motion.button
                       whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
