@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
-import { ChevronDown, Users, UserPlus, Shield, Star, Calendar, Facebook } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { ChevronDown, Users, UserPlus, Shield, Star, Calendar, Facebook, Eye, EyeOff, Lock } from "lucide-react";
+import { getApiUrl } from "@/lib/utils";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import DeadfrontTimer from "@/components/DeadfrontTimer";
@@ -12,7 +13,36 @@ import MemberVerifierModal from "@/components/MemberVerifierModal";
 import heroBg from "@/assets/hero-bg.jpg";
 
 const Index = () => {
+  const navigate = useNavigate();
   const [verifierOpen, setVerifierOpen] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    try {
+      const res = await fetch(getApiUrl("/api/auth/signin"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) return setError(data.error || "Login failed");
+      localStorage.setItem("sws_token", data.token);
+      localStorage.setItem("sws_user", JSON.stringify(data.user));
+      navigate("/dashboard");
+    } catch {
+      setError("Connection error. Make sure the server is running.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-background relative">
       <BackgroundFX />
@@ -173,25 +203,39 @@ const Index = () => {
               <h3 className="font-heading text-[10px] font-bold uppercase tracking-[0.2em] text-primary text-glow-gold mb-3 text-center">
                 ⚔ Member Login ⚔
               </h3>
-              <div className="space-y-2.5">
+              {error && (
+                <div className="p-2 rounded bg-red-500/10 border border-red-500/30 text-[10px] text-red-400 text-center mb-2.5">
+                  {error}
+                </div>
+              )}
+              <form onSubmit={handleLogin} className="space-y-2.5">
                 <div>
-                  <label className="text-[10px] font-heading text-muted-foreground uppercase tracking-wider">Username</label>
-                  <input type="text" placeholder="Enter username"
+                  <label className="text-[10px] font-heading text-muted-foreground uppercase tracking-wider">Username / Email</label>
+                  <input type="text" placeholder="Enter username or email"
+                    value={email} onChange={e => setEmail(e.target.value)} required
                     className="w-full h-8 px-3 text-xs bg-background/60 border border-border rounded-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50 mt-1" />
                 </div>
                 <div>
                   <label className="text-[10px] font-heading text-muted-foreground uppercase tracking-wider">Password</label>
-                  <input type="password" placeholder="••••••••"
-                    className="w-full h-8 px-3 text-xs bg-background/60 border border-border rounded-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50 mt-1" />
+                  <div className="relative mt-1">
+                    <input type={showPassword ? "text" : "password"} placeholder="••••••••"
+                      value={password} onChange={e => setPassword(e.target.value)} required
+                      className="w-full h-8 pl-3 pr-8 text-xs bg-background/60 border border-border rounded-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50" />
+                    <button type="button" onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors flex items-center justify-center">
+                      {showPassword ? <EyeOff size={11} /> : <Eye size={11} />}
+                    </button>
+                  </div>
                 </div>
-                <button className="w-full h-8 text-xs font-heading font-bold uppercase tracking-wider bg-gradient-to-b from-primary to-[hsl(35,70%,40%)] text-primary-foreground rounded-sm hover:brightness-110 transition-all border border-primary/60">
-                  Log In
+                <button type="submit" disabled={loading}
+                  className="w-full h-8 text-xs font-heading font-bold uppercase tracking-wider bg-gradient-to-b from-primary to-[hsl(35,70%,40%)] text-primary-foreground rounded-sm hover:brightness-110 transition-all border border-primary/60 disabled:opacity-60">
+                  {loading ? "Logging in..." : "Log In"}
                 </button>
                 <div className="flex items-center justify-between text-[10px]">
                   <Link to="/register" className="text-primary hover:underline font-heading">Create Account</Link>
                   <span className="text-muted-foreground hover:text-primary cursor-pointer font-heading">Forgot?</span>
                 </div>
-              </div>
+              </form>
             </motion.div>
 
             {/* Chapter Stats */}
