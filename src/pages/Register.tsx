@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { User, Mail, Lock, Camera, ChevronDown, Check, ArrowRight, ArrowLeft, Eye, EyeOff } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { getApiUrl } from "@/lib/utils";
 
 // Country list with flag emoji
 const COUNTRIES = [
@@ -83,9 +84,16 @@ const Register = () => {
     setError("");
     if (password !== confirm) return setError("Passwords do not match");
     if (password.length < 6) return setError("Password must be at least 6 characters");
+    
+    const hasUppercase = /[A-Z]/.test(password);
+    const hasSpecial = /[^A-Za-z0-9]/.test(password);
+    if (!hasUppercase || !hasSpecial) {
+      return setError("Password must contain at least 1 uppercase letter and 1 special character (e.g., SamXerz1973!)");
+    }
+
     setLoading(true);
     try {
-      const res = await fetch("/api/auth/signup", {
+      const res = await fetch(getApiUrl("/api/auth/signup"), {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, email, password }),
       });
@@ -118,12 +126,12 @@ const Register = () => {
       if (avatar) {
         const fd = new FormData();
         fd.append("avatar", avatar);
-        await fetch("/api/auth/upload-avatar", {
+        await fetch(getApiUrl("/api/auth/upload-avatar"), {
           method: "POST", headers: { Authorization: `Bearer ${tkn}` }, body: fd,
         });
       }
       // Update profile
-      const res = await fetch("/api/auth/profile", {
+      const res = await fetch(getApiUrl("/api/auth/profile"), {
         method: "PUT", headers: { "Content-Type": "application/json", Authorization: `Bearer ${tkn}` },
         body: JSON.stringify({
           firstName, lastName, dateOfBirth: dob,
@@ -206,6 +214,9 @@ const Register = () => {
                           {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
                         </button>
                       </div>
+                      <p className="text-[8px] text-muted-foreground/60 mt-1 uppercase tracking-wider font-heading leading-normal">
+                        Must contain at least 1 uppercase letter & 1 special character (e.g. SamXerz1973!)
+                      </p>
                     </div>
                     <div>
                       <label className="text-[10px] font-heading uppercase tracking-wider text-muted-foreground">Confirm Password</label>
