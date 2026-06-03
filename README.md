@@ -86,7 +86,7 @@ The site will be available at **http://localhost:8080**
 ### Backend (API server)
 ```bash
 # In a separate terminal
-node server.cjs
+node server.mjs
 ```
 The API runs at **http://localhost:5000**
 
@@ -128,7 +128,7 @@ sws-website/
 │   │   └── ...
 │   ├── App.tsx              # Root app + routing
 │   └── index.css            # Global styles
-├── server.cjs               # Express API server
+├── server.mjs               # Express API server
 ├── vercel.json              # Vercel deployment config
 ├── vite.config.ts           # Vite build config
 └── package.json
