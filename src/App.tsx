@@ -14,6 +14,7 @@ import Members from "./pages/Rankings";
 import MemberVerifier from "./pages/DownloadPage";
 import WhatIsAkrho from "./pages/WhatIsAkrho";
 import About from "./pages/About";
+import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 import YouTubeAudioPlayer from "./components/YouTubeAudioPlayer";
 
@@ -57,6 +58,7 @@ const AppInner = () => {
         <Route path="/" element={<Index />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/news" element={<News />} />
         <Route path="/members" element={<Members />} />
         <Route path="/rankings" element={<Members />} />
