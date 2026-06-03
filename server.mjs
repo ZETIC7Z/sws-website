@@ -58,10 +58,9 @@ const User = mongoose.model("User", userSchema);
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const generateAccountId = () => {
-  const prefix = "SWS";
   const year = new Date().getFullYear();
-  const uid = nanoid(6).toUpperCase();
-  return `${prefix}-${year}-${uid}`;
+  const num = Math.floor(100000 + Math.random() * 900000);
+  return `${year}${num}`;
 };
 
 const signToken = (userId) =>
@@ -92,6 +91,12 @@ app.post("/api/auth/signup", async (req, res) => {
       return res.status(400).json({ error: "Username, email, and password are required" });
     if (password.length < 6)
       return res.status(400).json({ error: "Password must be at least 6 characters" });
+    
+    const hasUppercase = /[A-Z]/.test(password);
+    const hasSpecial = /[^A-Za-z0-9]/.test(password);
+    if (!hasUppercase || !hasSpecial) {
+      return res.status(400).json({ error: "Password must contain at least 1 uppercase letter and 1 special character (e.g., SamXerz1973!)" });
+    }
 
     const existing = await User.findOne({ $or: [{ email }, { username }] });
     if (existing) {
