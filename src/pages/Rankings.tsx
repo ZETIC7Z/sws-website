@@ -5,8 +5,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 const members = [
-  { rank: 1, name: "Grand Skeptron", role: "Chapter President", badge: "GS", status: "Active", icon: Crown },
-  { rank: 2, name: "Vice Skeptron", role: "Chapter Vice President", badge: "VS", status: "Active", icon: Star },
+  { rank: 1, name: "EJULITOR TAJANLANGIT JR", role: "Chairman", badge: "CH", status: "Active", icon: Crown },
+  { rank: 2, name: "ARGEL B MISLANG", role: "Vice-Chairman", badge: "VC", status: "Active", icon: Star },
   { rank: 3, name: "Recording Secretary", role: "Chapter Secretary", badge: "RS", status: "Active", icon: Shield },
   { rank: 4, name: "Corresponding Sec.", role: "Correspondence Officer", badge: "CS", status: "Active", icon: Shield },
   { rank: 5, name: "Treasurer", role: "Chapter Treasurer", badge: "TR", status: "Active", icon: Shield },
@@ -22,6 +22,23 @@ const getRankColor = (rank: number) => {
   if (rank === 2) return "text-gray-300";
   if (rank === 3) return "text-amber-600";
   return "text-muted-foreground";
+};
+
+const getAnimationClass = (badge: string) => {
+  switch (badge) {
+    case "CH": return "animate-hover-heartbeat";
+    case "VC": return "animate-hover-spin";
+    case "RS":
+    case "CS":
+    case "TR":
+    case "SA":
+      return "animate-hover-wobble";
+    case "AU":
+    case "PR":
+      return "animate-hover-bounce";
+    default:
+      return "";
+  }
 };
 
 const Members = () => (
@@ -57,8 +74,8 @@ const Members = () => (
               <thead>
                 <tr className="border-b border-border/50">
                   <th className="px-4 py-3 text-left text-[10px] font-mono uppercase tracking-widest text-muted-foreground">#</th>
-                  <th className="px-4 py-3 text-left text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Position</th>
-                  <th className="px-4 py-3 text-left text-[10px] font-mono uppercase tracking-widest text-muted-foreground hidden sm:table-cell">Role</th>
+                  <th className="px-4 py-3 text-left text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Name</th>
+                  <th className="px-4 py-3 text-left text-[10px] font-mono uppercase tracking-widest text-muted-foreground hidden sm:table-cell">Position</th>
                   <th className="px-4 py-3 text-center text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Badge</th>
                   <th className="px-4 py-3 text-right text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Status</th>
                 </tr>
@@ -72,11 +89,11 @@ const Members = () => (
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.3 + i * 0.05 }}
-                      className="border-b border-border/30 hover:bg-primary/5 transition-colors"
+                      className="border-b border-border/30 hover:bg-primary/5 transition-colors group"
                     >
                       <td className={`px-4 py-3 font-mono font-bold ${getRankColor(m.rank)}`}>#{m.rank}</td>
                       <td className="px-4 py-3 font-semibold text-foreground flex items-center gap-2">
-                        <Icon size={13} className="text-primary/60 flex-shrink-0" />
+                        <Icon size={13} className={`text-primary/60 flex-shrink-0 transition-transform duration-300 ${getAnimationClass(m.badge)}`} />
                         {m.name}
                       </td>
                       <td className="px-4 py-3 text-sm text-muted-foreground hidden sm:table-cell">{m.role}</td>
